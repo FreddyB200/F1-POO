@@ -182,6 +182,7 @@ public class Piloto extends Competidor {
      * @return Edad.
      */
     public int getEdad() {
+        return edad;
     }
 
     public TemporadaActual getTemporadaActual() {
