@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+
+abstract class Competidor {
+  -nombreCompleto: String
+  -campeonatosGanados: int
+  -puntos2024: double
+  --
+  +getNombreCompleto(): String
+  +getCampeonatosGanados(): int
+  +getPuntos2024(): double
+}
+
+@enduml

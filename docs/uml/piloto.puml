@@ -1,0 +1,50 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+
+abstract class Competidor {
+ .. El resto de Competidor ..
+}
+
+class Piloto extends Competidor {
+  -id: int
+  -equipo: Equipo
+  -numero: int
+  -abreviatura: String
+  -carrerasDisputadas: int
+  -carrerasGanadas: Integer
+  -podios: Integer
+  -poles: Integer
+  -vueltasRapidas: Integer
+  -posicionesPorCarrera: Map<String, String>
+  -nacionalidad: String
+  -edad: int
+  -temporadaActual: TemporadaActual
+  --
+  +getId(): int
+  +getEquipo(): Equipo
+  +getNumero(): int
+  +getAbreviatura(): String
+  +getCarrerasDisputadas(): int
+  +getCarrerasGanadas(): Integer
+  +getPodios(): Integer
+  +getPoles(): Integer
+  +getVueltasRapidas(): Integer
+  +getPosicionesPorCarrera(): Map<String, String>
+  +getNacionalidad(): String
+  +getEdad(): int
+  +getTemporadaActual(): TemporadaActual
+  +toString(): String
+}
+
+' Relaciones (se pueden añadir las otras clases si se combinan diagramas)
+' Piloto "0..*" --> "1" Equipo : pertenece a >
+' Piloto "1" --> "1" TemporadaActual : tiene >
+' Competidor <|-- Piloto
+
+note right of Piloto::posicionesPorCarrera
+  Mapa obsoleto si los resultados
+  se gestionan en la clase Carrera.
+end note
+
+@enduml

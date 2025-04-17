@@ -1,0 +1,47 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+
+class Carrera {
+  -nombre: String
+  -circuito: Circuito
+  -fecha: LocalDate
+  -tipo: String  // "Principal" o "Sprint"
+  -posicionesPilotos: Map<Piloto, String>
+  -puntosPilotos: Map<Piloto, Integer>
+  -puntosEquipos: Map<Equipo, Integer>
+  --
+  ' Asumiendo getters para todos los campos privados
+  +getNombre(): String
+  +getCircuito(): Circuito
+  +getFecha(): LocalDate
+  +getTipo(): String
+  +getPosicionesPilotos(): Map<Piloto, String>
+  +getPuntosPilotos(): Map<Piloto, Integer>
+  +getPuntosEquipos(): Map<Equipo, Integer>
+}
+
+' Relaciones (se pueden añadir las otras clases si se combinan diagramas)
+' Carrera "1" --> "1" Circuito : se corre en >
+' Carrera "1" ..> "*" Piloto : contiene resultados de >
+' Carrera "1" ..> "*" Equipo : contiene resultados de >
+
+note right of Carrera::posicionesPilotos
+  Mapa que asocia cada objeto Piloto
+  con su posición final (String)
+  en esta carrera específica.
+end note
+
+note right of Carrera::puntosPilotos
+  Mapa que asocia cada objeto Piloto
+  con los puntos obtenidos (Integer)
+  en esta carrera específica.
+end note
+
+note right of Carrera::puntosEquipos
+  Mapa que asocia cada objeto Equipo
+  con los puntos totales obtenidos
+  por sus pilotos en esta carrera.
+end note
+
+@enduml

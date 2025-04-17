@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+
+class Circuito {
+  -id: int
+  -nombre: String
+  -pais: String
+  -fechaCarreraPrincipal: LocalDate
+  -fechaCarreraSprint: LocalDate
+  --
+  +getId(): int
+  +getNombre(): String
+  +getPais(): String
+  +getFechaCarreraPrincipal(): LocalDate
+  +getFechaCarreraSprint(): LocalDate
+}
+
+@enduml

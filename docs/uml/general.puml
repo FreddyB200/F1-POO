@@ -1,0 +1,160 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+hide empty members
+
+title Diagrama General de Clases - F1 Manager 2024
+
+' --- Clase Base ---
+abstract class Competidor {
+  -nombreCompleto: String
+  -campeonatosGanados: int
+  -puntos2024: double
+  --
+  +getNombreCompleto(): String
+  +getCampeonatosGanados(): int
+  +getPuntos2024(): double
+}
+
+' --- Equipo ---
+class Equipo extends Competidor {
+  -id: int
+  -directorGeneral: String
+  -paisOrigen: String
+  -proveedorMotor: String
+  -carrerasGanadas2024: Integer
+  -ultimaVictoria: LocalDate
+  -pilotos: List<Piloto>
+  --
+  +getId(): int
+  +getDirectorGeneral(): String
+  +getPaisOrigen(): String
+  +getProveedorMotor(): String
+  +getCarrerasGanadas2024(): Integer
+  +getUltimaVictoria(): LocalDate
+  +agregarPiloto(Piloto): void
+  +getPilotos(): List<Piloto>
+}
+
+' --- Piloto ---
+class Piloto extends Competidor {
+  -id: int
+  -equipo: Equipo
+  -numero: int
+  -abreviatura: String
+  -carrerasDisputadas: int
+  -carrerasGanadas: Integer
+  -podios: Integer
+  -poles: Integer
+  -vueltasRapidas: Integer
+  -posicionesPorCarrera: Map<String, String>
+  -nacionalidad: String
+  -edad: int
+  -temporadaActual: TemporadaActual
+  --
+  +getId(): int
+  +getEquipo(): Equipo
+  +getNumero(): int
+  +getAbreviatura(): String
+  +getCarrerasDisputadas(): int
+  +getCarrerasGanadas(): Integer
+  +getPodios(): Integer
+  +getPoles(): Integer
+  +getVueltasRapidas(): Integer
+  +getPosicionesPorCarrera(): Map<String, String>
+  +getNacionalidad(): String
+  +getEdad(): int
+  +getTemporadaActual(): TemporadaActual
+  +toString(): String
+}
+
+' --- Temporada Actual ---
+class TemporadaActual {
+  -posicionCampeonato: int
+  -carrerasCompletadas: int
+  -carrerasPendientes: int
+  -proximaCarrera: String
+  -fechaProximaCarrera: LocalDate
+  --
+  +getPosicionCampeonato(): int
+  +getCarrerasCompletadas(): int
+  +getCarrerasPendientes(): int
+  +getProximaCarrera(): String
+  +getFechaProximaCarrera(): LocalDate
+}
+
+' --- Circuito ---
+class Circuito {
+  -id: int
+  -nombre: String
+  -pais: String
+  -fechaCarreraPrincipal: LocalDate
+  -fechaCarreraSprint: LocalDate
+  --
+  +getId(): int
+  +getNombre(): String
+  +getPais(): String
+  +getFechaCarreraPrincipal(): LocalDate
+  +getFechaCarreraSprint(): LocalDate
+}
+
+' --- Carrera ---
+class Carrera {
+  -nombre: String
+  -circuito: Circuito
+  -fecha: LocalDate
+  -tipo: String
+  -posicionesPilotos: Map<Piloto, String>
+  -puntosPilotos: Map<Piloto, Integer>
+  -puntosEquipos: Map<Equipo, Integer>
+  --
+  +getNombre(): String
+  +getCircuito(): Circuito
+  +getFecha(): LocalDate
+  +getTipo(): String
+  +getPosicionesPilotos(): Map<Piloto, String>
+  +getPuntosPilotos(): Map<Piloto, Integer>
+  +getPuntosEquipos(): Map<Equipo, Integer>
+}
+
+' --- Relaciones ---
+Competidor <|-- Equipo
+Competidor <|-- Piloto
+
+Piloto "0..*" --> "1" Equipo : pertenece a >
+Equipo "1" o--> "0..*" Piloto : gestiona > ' Muestra la lista en Equipo
+
+Piloto "1" --> "1" TemporadaActual : tiene info de >
+
+Carrera "1" --> "1" Circuito : se corre en >
+
+' Relaciones de Carrera con resultados (usando dependencia/asociación simple)
+Carrera ..> Piloto : contiene resultados de
+Carrera ..> Equipo : contiene resultados de
+
+
+' --- Notas Adicionales ---
+note right of Equipo::pilotos
+  La lista `pilotos` en `Equipo`
+  es poblada por `CargadorDatos`
+  llamando a `agregarPiloto()`.
+end note
+
+note right of Carrera::posicionesPilotos
+  Map<Piloto, String>
+  Guarda la posición final
+  de cada Piloto en la Carrera.
+end note
+note right of Carrera::puntosPilotos
+  Map<Piloto, Integer>
+  Guarda los puntos obtenidos
+  por cada Piloto en la Carrera.
+end note
+note right of Carrera::puntosEquipos
+  Map<Equipo, Integer>
+  Guarda los puntos totales del Equipo
+  (suma de sus pilotos) en la Carrera.
+end note
+
+
+@enduml

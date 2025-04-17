@@ -1,0 +1,37 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+
+abstract class Competidor {
+  .. El resto de Competidor ..
+}
+
+class Equipo extends Competidor {
+  -id: int
+  -directorGeneral: String
+  -paisOrigen: String
+  -proveedorMotor: String
+  -carrerasGanadas2024: Integer
+  -ultimaVictoria: LocalDate
+  -pilotos: List<Piloto>
+  --
+  +getId(): int
+  +getDirectorGeneral(): String
+  +getPaisOrigen(): String
+  +getProveedorMotor(): String
+  +getCarrerasGanadas2024(): Integer
+  +getUltimaVictoria(): LocalDate
+  +agregarPiloto(Piloto): void
+  +getPilotos(): List<Piloto>
+}
+
+' Relaciones (se pueden añadir las otras clases si se combinan diagramas)
+' Equipo "1" o--> "0..*" Piloto : contiene >
+' Competidor <|-- Equipo
+
+note right of Equipo::pilotos
+  Lista de pilotos asociados al equipo.
+  Poblada por CargadorDatos.
+end note
+
+@enduml

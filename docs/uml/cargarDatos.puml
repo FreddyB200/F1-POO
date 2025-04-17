@@ -1,0 +1,13 @@
+@startuml
+class CargadorDatos {
+    + cargarPilotos(): List<Piloto>
+    + cargarCircuitos(): List<Circuito>
+    + cargarEquipos(): List<Equipo>
+    + cargarCarreras(): List<Carrera>
+}
+
+CargadorDatos --> Piloto
+CargadorDatos --> Circuito
+CargadorDatos --> Equipo
+CargadorDatos --> Carrera
+@enduml

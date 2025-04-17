@@ -1,0 +1,25 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+
+class TemporadaActual {
+  -posicionCampeonato: int
+  -carrerasCompletadas: int
+  -carrerasPendientes: int
+  -proximaCarrera: String
+  -fechaProximaCarrera: LocalDate
+  --
+  +getPosicionCampeonato(): int
+  +getCarrerasCompletadas(): int
+  +getCarrerasPendientes(): int
+  +getProximaCarrera(): String
+  +getFechaProximaCarrera(): LocalDate
+}
+
+note right of TemporadaActual
+  Representa datos del estado de la temporada
+  para un piloto, tal como se cargó
+  al final de la temporada en CargadorDatos.
+end note
+
+@enduml
