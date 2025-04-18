@@ -21,15 +21,13 @@ public class Main {
 
     private static void mostrarBanner(){
             String asciiArt = """
-    ███████╗ ██████╗ ██████╗ ███╗   ███╗██╗   ██╗██╗     █████╗       ██████╗
-    ██╔════╝██╔═══██╗██╔══██╗████╗ ████║██║   ██║██║     ██╔══██╗         ██║
-    █████╗  ██║   ██║██████╔╝██╔████╔██║██║   ██║██║     ███████║         ██║
-    ██╔══╝  ██║   ██║██╔══██╗██║╚██╔╝██║██║   ██║██║     ██╔══██║         ██║
-    ██║     ╚██████╔╝██║  ██║██║ ╚═╝ ██║╚██████╔╝███████╗██║  ██║         ██║
-    ╚═╝     ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝          ╚═╝
-                                                                    
-                                                                    
-                                     d88b
+    ███████╗ ██████╗ ██████╗ ███╗   ███╗██╗   ██╗██╗     █████╗       ████╗
+    ██╔════╝██╔═══██╗██╔══██╗████╗ ████║██║   ██║██║     ██╔══██╗       ██║
+    █████╗  ██║   ██║██████╔╝██╔████╔██║██║   ██║██║     ███████║       ██║
+    ██╔══╝  ██║   ██║██╔══██╗██║╚██╔╝██║██║   ██║██║     ██╔══██║       ██║
+    ██║     ╚██████╔╝██║  ██║██║ ╚═╝ ██║╚██████╔╝███████╗██║  ██║       ██║
+    ╚═╝      ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝     ██████
+                                                                                                      
                      _______________|8888|_______________
                     |_____________ ,~~~~~~. _____________|
   _________         |_____________: mmmmmm :_____________|         _________
@@ -42,9 +40,8 @@ public class Main {
 ||        |===================,P'.::::::::.. `?,===================|        ||
 ||        |_________________,P'_::----------.._`?,_________________|        ||
 `|        |-------------------~~~~~~~~~~~~~~~~~~-------------------|        |'
-  \\_______/                                                       \\_______/
+  \\_______/                                                        \\_______/
         """;
-
                 System.out.println(asciiArt);
 
                 mostrarMenu();
@@ -61,18 +58,22 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         int opcion = -1; // Inicializar con valor inválido
 
+        String menuCompleto = """
+                ==== MENÚ DE GESTIÓN F1 - TEMPORADA 2024 ====
+                        == SELECCIONA UNA OPCION ==
+                         
+1. Ver posiciones de pilotos y escuderías en cada carrera
+2. Ver puntos POR CADA carrera (NO acumulados)
+3. Información general de un equipo
+4. Información general de un piloto
+5. Información general de un circuito
+6. Listar todos los pilotos (con ID)
+7. Listar todos los equipos (con ID)
+8. Listar todos los circuitos (con ID)
+0. Salir
+        """;
         do {
-            System.out.println("\n=== MENÚ DE GESTIÓN F1 - TEMPORADA 2024 ===");
-            System.out.println("1. Ver posiciones de pilotos y escuderías en cada carrera");
-            System.out.println("2. Ver puntos POR CADA carrera (NO acumulados)"); // Nombre corregido para claridad
-            System.out.println("3. Información general de un equipo");
-            System.out.println("4. Información general de un piloto");
-            System.out.println("5. Información general de un circuito");
-            System.out.println("6. Listar todos los pilotos (con ID)");
-            System.out.println("7. Listar todos los equipos (con ID)");
-            System.out.println("8. Listar todos los circuitos (con ID)"); // Nueva opción
-            System.out.println("0. Salir");
-            System.out.print("Seleccione una opción: ");
+            System.out.println(menuCompleto);
 
             try {
                 opcion = scanner.nextInt();
