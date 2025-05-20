@@ -52,7 +52,7 @@ public class Main {
     private static void mostrarMenu() {
         // Carga única de datos al inicio
         List<Equipo> equipos = CargadorDatos.cargarEquipos();
-        List<Piloto> pilotos = CargadorDatos.cargarPilotos();
+        List<Piloto> pilotos = CargadorDatos.cargarPilotos(equipos);
         List<Circuito> circuitos = CargadorDatos.cargarCircuitos();
         List<Carrera> carreras = CargadorDatos.cargarCarreras(pilotos, equipos, circuitos);
 

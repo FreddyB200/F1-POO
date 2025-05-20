@@ -67,8 +67,7 @@ public class CargadorDatos {
     // Pilotos 2024: Compatibles con nuevo constructor Piloto(id, nombre, campeonatos, puntos2024, equipo, ...)
     // puntos2024 = Puntos finales del campeonato de pilotos 2024
     // Otros stats (victorias, podios, etc.) = Totales de carrera hasta fin 2024
-    public static List<Piloto> cargarPilotos() {
-        List<Equipo> equipos = cargarEquipos();
+    public static List<Piloto> cargarPilotos(List<Equipo> equipos) {
         Map<String, Equipo> equiposPorNombre = equipos.stream()
                 .collect(Collectors.toMap(Equipo::getNombreCompleto, Function.identity()));
 
