@@ -1,5 +1,6 @@
 import data.CargadorDatos;
 import model.*;
+import util.VisualizadorComparacion;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter; // Importar para formatear fechas
@@ -12,6 +13,8 @@ import java.util.Optional; // Importar para Optional
 import java.util.stream.Collectors;
 
 public class Main {
+
+    private static final Scanner scanner = new Scanner(System.in);
 
     // Formateador para fechas (opcional, pero mejora la legibilidad)
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -56,7 +59,6 @@ public class Main {
         List<Circuito> circuitos = CargadorDatos.cargarCircuitos();
         List<Carrera> carreras = CargadorDatos.cargarCarreras(pilotos, equipos, circuitos);
 
-        Scanner scanner = new Scanner(System.in);
         int opcion = -1;
 
         String menuCompleto = """
@@ -109,8 +111,8 @@ public class Main {
                 case 6 -> mostrarInfoCircuito(circuitos, scanner);
                 case 7 -> mostrarPosicionesPilotosEquipos(carreras);
                 case 8 -> mostrarPuntosPorCarrera(carreras);
-                case 9 -> compararEquipos(equipos, scanner);
-                case 10 -> compararPilotos(pilotos, scanner);
+                case 9 -> compararEquipos(equipos);
+                case 10 -> compararPilotos(pilotos);
                 case 0 -> System.out.println("Saliendo...");
                 case -1 -> {} // No hacer nada si la opción fue inválida por error de input
                 default -> System.out.println("Opción inválida. Intente de nuevo.");
@@ -121,7 +123,6 @@ public class Main {
 
     // Método corregido para ordenar posiciones correctamente
     private static void mostrarPosicionesPilotosEquipos(List<Carrera> carreras) {
-        Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("\n¿Qué deseas hacer?");
             System.out.println("1. Ver todas las carreras una por una");
@@ -214,7 +215,6 @@ public class Main {
 
     // Método renombrado y funcionalmente correcto (muestra puntos POR carrera)
     private static void mostrarPuntosPorCarrera(List<Carrera> carreras) {
-        Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("\n¿Qué deseas hacer?");
             System.out.println("1. Ver todas las carreras una por una");
@@ -496,54 +496,28 @@ public class Main {
         }
     }
 
-    private static void compararEquipos(List<Equipo> equipos, Scanner scanner) {
-        System.out.println("\n\n╔════════════════════════════════════════════════════════════╗");
-        System.out.println("║                🤝 COMPARACIÓN DE EQUIPOS                  ║");
-        System.out.println("╠════════════════════════════════════════════════════════════╣");
-        System.out.print("Ingrese el nombre o ID del primer equipo: ");
-        String idEquipo1 = scanner.nextLine().trim();
-        System.out.print("Ingrese el nombre o ID del segundo equipo: ");
-        String idEquipo2 = scanner.nextLine().trim();
-
-        Equipo equipo1 = encontrarEquipo(equipos, idEquipo1);
-        Equipo equipo2 = encontrarEquipo(equipos, idEquipo2);
-
-        if (equipo1 == null) {
-            System.out.println("❌ Primer equipo no encontrado: " + idEquipo1);
-        } else if (equipo2 == null) {
-            System.out.println("❌ Segundo equipo no encontrado: " + idEquipo2);
-        } else {
-            double diferenciaPuntos = Math.abs(equipo1.getPuntos2024() - equipo2.getPuntos2024());
-            int victorias1 = equipo1.getCarrerasGanadas2024() != null ? equipo1.getCarrerasGanadas2024() : 0;
-            int victorias2 = equipo2.getCarrerasGanadas2024() != null ? equipo2.getCarrerasGanadas2024() : 0;
-            int diferenciaVictorias = Math.abs(victorias1 - victorias2);
-
-            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
-            System.out.println("║               📊 RESULTADO DE LA COMPARACIÓN                ║");
-            System.out.println("╠════════════════════════════════════════════════════════════╣");
-            System.out.printf("║ %-25s | %-25s ║\n", equipo1.getNombreCompleto(), equipo2.getNombreCompleto());
-            System.out.println("╟─────────────────────────┼─────────────────────────╢");
-            System.out.printf("║ Puntos 2024: %-11.1f | Puntos 2024: %-11.1f ║\n", equipo1.getPuntos2024(), equipo2.getPuntos2024());
-            System.out.printf("║ Victorias 2024: %-8d | Victorias 2024: %-8d ║\n", victorias1, victorias2);
-            System.out.println("╟─────────────────────────┼─────────────────────────╢");
-            System.out.printf("║ Diferencia de puntos: %-8.1f                      ║\n", diferenciaPuntos);
-            System.out.printf("║ Diferencia de victorias: %-6d                      ║\n", diferenciaVictorias);
-            System.out.println("╚════════════════════════════════════════════════════════════╝\n");
-
-            if (equipo1.getPuntos2024() > equipo2.getPuntos2024()) {
-                System.out.printf("✅ %s tiene más puntos (%.1f) que %s (%.1f) en 2024.\n",
-                                   equipo1.getNombreCompleto(), equipo1.getPuntos2024(),
-                                   equipo2.getNombreCompleto(), equipo2.getPuntos2024());
-            } else if (equipo2.getPuntos2024() > equipo1.getPuntos2024()) {
-                 System.out.printf("✅ %s tiene más puntos (%.1f) que %s (%.1f) en 2024.\n",
-                                   equipo2.getNombreCompleto(), equipo2.getPuntos2024(),
-                                   equipo1.getNombreCompleto(), equipo1.getPuntos2024());
-            } else {
-                System.out.printf("🤝 %s y %s tienen los mismos puntos (%.1f) en 2024.\n",
-                                   equipo1.getNombreCompleto(), equipo2.getNombreCompleto(), equipo1.getPuntos2024());
-            }
+    private static void compararEquipos(List<Equipo> equipos) {
+        if (equipos.size() < 2) {
+            System.out.println("Se necesitan al menos dos equipos para comparar.");
+            return;
         }
-        System.out.println("\n");
+
+        System.out.println("\n=== COMPARACIÓN DE EQUIPOS ===");
+        for (int i = 0; i < equipos.size(); i++) {
+            System.out.println((i + 1) + ". " + equipos.get(i).getNombreCompleto());
+        }
+
+        System.out.print("\nSeleccione el primer equipo (número): ");
+        int equipo1 = scanner.nextInt() - 1;
+        System.out.print("Seleccione el segundo equipo (número): ");
+        int equipo2 = scanner.nextInt() - 1;
+
+        if (equipo1 < 0 || equipo1 >= equipos.size() || equipo2 < 0 || equipo2 >= equipos.size()) {
+            System.out.println("Selección inválida.");
+            return;
+        }
+
+        VisualizadorComparacion.mostrarComparacionEquipos(equipos.get(equipo1), equipos.get(equipo2));
     }
 
     // Método para encontrar un piloto por ID, nombre o abreviatura
@@ -563,58 +537,27 @@ public class Main {
         }
     }
 
-    private static void compararPilotos(List<Piloto> pilotos, Scanner scanner) {
-        System.out.println("\n\n╔════════════════════════════════════════════════════════════╗");
-        System.out.println("║                 🤝 COMPARACIÓN DE PILOTOS                  ║");
-        System.out.println("╠════════════════════════════════════════════════════════════╣");
-        System.out.print("Ingrese el nombre, ID o abreviatura del primer piloto: ");
-        String idPiloto1 = scanner.nextLine().trim();
-        System.out.print("Ingrese el nombre, ID o abreviatura del segundo piloto: ");
-        String idPiloto2 = scanner.nextLine().trim();
-
-        Piloto piloto1 = encontrarPiloto(pilotos, idPiloto1);
-        Piloto piloto2 = encontrarPiloto(pilotos, idPiloto2);
-
-        if (piloto1 == null) {
-            System.out.println("❌ Primer piloto no encontrado: " + idPiloto1);
-        } else if (piloto2 == null) {
-            System.out.println("❌ Segundo piloto no encontrado: " + idPiloto2);
-        } else {
-            double diferenciaPuntos = Math.abs(piloto1.getPuntos2024() - piloto2.getPuntos2024());
-            int victorias1 = piloto1.getCarrerasGanadas() != null ? piloto1.getCarrerasGanadas() : 0;
-            int victorias2 = piloto2.getCarrerasGanadas() != null ? piloto2.getCarrerasGanadas() : 0;
-            int diferenciaVictorias = Math.abs(victorias1 - victorias2);
-            int podios1 = piloto1.getPodios();
-            int podios2 = piloto2.getPodios();
-            int diferenciaPodios = Math.abs(podios1 - podios2);
-
-            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
-            System.out.println("║               📊 RESULTADO DE LA COMPARACIÓN                ║");
-            System.out.println("╠════════════════════════════════════════════════════════════╣");
-            System.out.printf("║ %-25s | %-25s ║\n", piloto1.getNombreCompleto(), piloto2.getNombreCompleto());
-            System.out.println("╟─────────────────────────┼─────────────────────────╢");
-            System.out.printf("║ Puntos 2024: %-11.1f | Puntos 2024: %-11.1f ║\n", piloto1.getPuntos2024(), piloto2.getPuntos2024());
-            System.out.printf("║ Victorias: %-13d | Victorias: %-13d ║\n", victorias1, victorias2);
-            System.out.printf("║ Podios: %-16d | Podios: %-16d ║\n", podios1, podios2);
-            System.out.println("╟─────────────────────────┼─────────────────────────╢");
-            System.out.printf("║ Diferencia de puntos: %-8.1f                      ║\n", diferenciaPuntos);
-            System.out.printf("║ Diferencia de victorias: %-6d                      ║\n", diferenciaVictorias);
-            System.out.printf("║ Diferencia de podios: %-9d                      ║\n", diferenciaPodios);
-            System.out.println("╚════════════════════════════════════════════════════════════╝\n");
-
-            if (piloto1.getPuntos2024() > piloto2.getPuntos2024()) {
-                System.out.printf("✅ %s tiene más puntos (%.1f) que %s (%.1f) en 2024.\n",
-                                   piloto1.getNombreCompleto(), piloto1.getPuntos2024(),
-                                   piloto2.getNombreCompleto(), piloto2.getPuntos2024());
-            } else if (piloto2.getPuntos2024() > piloto1.getPuntos2024()) {
-                System.out.printf("✅ %s tiene más puntos (%.1f) que %s (%.1f) en 2024.\n",
-                                   piloto2.getNombreCompleto(), piloto2.getPuntos2024(),
-                                   piloto1.getNombreCompleto(), piloto1.getPuntos2024());
-            } else {
-                System.out.printf("🤝 %s y %s tienen los mismos puntos (%.1f) en 2024.\n",
-                                   piloto1.getNombreCompleto(), piloto2.getNombreCompleto(), piloto1.getPuntos2024());
-            }
+    private static void compararPilotos(List<Piloto> pilotos) {
+        if (pilotos.size() < 2) {
+            System.out.println("Se necesitan al menos dos pilotos para comparar.");
+            return;
         }
-        System.out.println("\n");
+
+        System.out.println("\n=== COMPARACIÓN DE PILOTOS ===");
+        for (int i = 0; i < pilotos.size(); i++) {
+            System.out.println((i + 1) + ". " + pilotos.get(i).getNombreCompleto());
+        }
+
+        System.out.print("\nSeleccione el primer piloto (número): ");
+        int piloto1 = scanner.nextInt() - 1;
+        System.out.print("Seleccione el segundo piloto (número): ");
+        int piloto2 = scanner.nextInt() - 1;
+
+        if (piloto1 < 0 || piloto1 >= pilotos.size() || piloto2 < 0 || piloto2 >= pilotos.size()) {
+            System.out.println("Selección inválida.");
+            return;
+        }
+
+        VisualizadorComparacion.mostrarComparacionPilotos(pilotos.get(piloto1), pilotos.get(piloto2));
     }
 }
