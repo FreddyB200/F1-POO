@@ -64,24 +64,25 @@ public class Main {
                 ║                  GESTIÓN F1 - TEMPORADA 2024                ║
                 ╠════════════════════════════════════════════════════════════╣
                 ║                                                            ║
-                ║  📊 ESTADÍSTICAS Y RESULTADOS                             ║
-                ║    1. Ver posiciones por carrera                           ║
-                ║    2. Ver puntos por carrera                               ║
+                ║  👥 LISTADOS                                              ║
+                ║    1. Listar Equipos                                       ║
+                ║    2. Listar Pilotos                                       ║
+                ║    3. Listar Circuitos                                     ║
                 ║                                                            ║
-                ║  👥 INFORMACIÓN DE PARTICIPANTES                          ║
-                ║    3. Información de equipo                                ║
-                ║    4. Información de piloto                                ║
-                ║    5. Información de circuito                              ║
-                ║                                                            ║
-                ║  📋 LISTADOS                                              ║
-                ║    7. Listar Equipos                                       ║
-                ║    8. Listar Pilotos                                       ║
-                ║    9. Listar Circuitos                                     ║
-                ║                                                            ║
-                ║  COMPARACIÓN                                                ║
+                ║  📊 INFORMACIÓN DETALLADA                                  ║
                 ║  ───────────────────────────────────────────────────────────║
-                ║  10. Comparar Equipos                                       ║
-                ║  11. Comparar Pilotos                                       ║
+                ║    4. Ver Información Detallada de Equipo                   ║
+                ║    5. Ver Información Detallada de Piloto                   ║
+                ║    6. Ver Información Detallada de Circuito                 ║
+                ║                                                            ║
+                ║  🏆 ESTADÍSTICAS Y RESULTADOS                             ║
+                ║    7. Ver posiciones por carrera                           ║
+                ║    8. Ver puntos por carrera                               ║
+                ║                                                            ║
+                ║  🤝 COMPARACIÓN                                            ║
+                ║  ───────────────────────────────────────────────────────────║
+                ║    9. Comparar Equipos                                     ║
+                ║    10. Comparar Pilotos                                    ║
                 ║                                                            ║
                 ║  0. Salir                                                  ║
                 ║                                                            ║
@@ -99,18 +100,17 @@ public class Main {
                 scanner.nextLine(); // Siempre limpiar buffer, incluso si hay error
             }
 
-
             switch (opcion) {
-                case 1 -> mostrarPosicionesPilotosEquipos(carreras);
-                case 2 -> mostrarPuntosPorCarrera(carreras);
-                case 3 -> mostrarInfoEquipo(equipos, scanner);
-                case 4 -> mostrarInfoPiloto(pilotos, scanner);
-                case 5 -> mostrarInfoCircuito(circuitos, scanner);
-                case 7 -> listarEquipos(equipos);
-                case 8 -> listarPilotos(pilotos);
-                case 9 -> listarCircuitos(circuitos);
-                case 10 -> compararEquipos(equipos, scanner);
-                case 11 -> compararPilotos(pilotos, scanner);
+                case 1 -> listarEquipos(equipos);
+                case 2 -> listarPilotos(pilotos);
+                case 3 -> listarCircuitos(circuitos);
+                case 4 -> mostrarInfoEquipo(equipos, scanner);
+                case 5 -> mostrarInfoPiloto(pilotos, scanner);
+                case 6 -> mostrarInfoCircuito(circuitos, scanner);
+                case 7 -> mostrarPosicionesPilotosEquipos(carreras);
+                case 8 -> mostrarPuntosPorCarrera(carreras);
+                case 9 -> compararEquipos(equipos, scanner);
+                case 10 -> compararPilotos(pilotos, scanner);
                 case 0 -> System.out.println("Saliendo...");
                 case -1 -> {} // No hacer nada si la opción fue inválida por error de input
                 default -> System.out.println("Opción inválida. Intente de nuevo.");
