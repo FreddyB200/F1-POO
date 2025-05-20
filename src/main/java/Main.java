@@ -74,14 +74,19 @@ public class Main {
                 ║    5. Información de circuito                              ║
                 ║                                                            ║
                 ║  📋 LISTADOS                                              ║
-                ║    6. Listar pilotos                                       ║
-                ║    7. Listar equipos                                       ║
-                ║    8. Listar circuitos                                     ║
+                ║    7. Listar Equipos                                       ║
+                ║    8. Listar Pilotos                                       ║
+                ║    9. Listar Circuitos                                     ║
+                ║                                                            ║
+                ║  COMPARACIÓN                                                ║
+                ║  ───────────────────────────────────────────────────────────║
+                ║  10. Comparar Equipos                                       ║
+                ║  11. Comparar Pilotos                                       ║
                 ║                                                            ║
                 ║  0. Salir                                                  ║
                 ║                                                            ║
                 ╚════════════════════════════════════════════════════════════╝
-                """;
+        """;
         do {
             System.out.println(menuCompleto);
 
@@ -97,13 +102,15 @@ public class Main {
 
             switch (opcion) {
                 case 1 -> mostrarPosicionesPilotosEquipos(carreras);
-                case 2 -> mostrarPuntosPorCarrera(carreras); // Método renombrado
+                case 2 -> mostrarPuntosPorCarrera(carreras);
                 case 3 -> mostrarInfoEquipo(equipos, scanner);
                 case 4 -> mostrarInfoPiloto(pilotos, scanner);
                 case 5 -> mostrarInfoCircuito(circuitos, scanner);
-                case 6 -> listarPilotos(pilotos);
                 case 7 -> listarEquipos(equipos);
-                case 8 -> listarCircuitos(circuitos); // Nuevo método llamado
+                case 8 -> listarPilotos(pilotos);
+                case 9 -> listarCircuitos(circuitos);
+                case 10 -> compararEquipos(equipos, scanner);
+                case 11 -> compararPilotos(pilotos, scanner);
                 case 0 -> System.out.println("Saliendo...");
                 case -1 -> {} // No hacer nada si la opción fue inválida por error de input
                 default -> System.out.println("Opción inválida. Intente de nuevo.");
@@ -115,127 +122,175 @@ public class Main {
     // Método corregido para ordenar posiciones correctamente
     private static void mostrarPosicionesPilotosEquipos(List<Carrera> carreras) {
         Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("\n¿Qué deseas hacer?");
+            System.out.println("1. Ver todas las carreras una por una");
+            System.out.println("2. Filtrar por nombre o fecha");
+            System.out.println("3. Salir");
+            System.out.print("Selecciona una opción: ");
+            String opcion = scanner.nextLine().trim();
+            if (opcion.equals("3")) return;
+            if (opcion.equals("1")) {
+                for (Carrera carrera : carreras) {
+                    mostrarCarreraConFormato(carrera);
+                    System.out.println("\nPresiona Enter para ver la siguiente carrera o escribe 'salir' para volver al menú...");
+                    String next = scanner.nextLine().trim();
+                    if (next.equalsIgnoreCase("salir")) return;
+                }
+                return;
+            }
+            if (opcion.equals("2")) {
+                while (true) {
+                    System.out.println("\nFiltra por nombre o fecha (formato: dd/MM/yyyy o dd/MM/yy). Escribe 'salir' para volver al menú.");
+                    String filtro = scanner.nextLine().trim();
+                    if (filtro.equalsIgnoreCase("salir")) break;
+                    if (!filtro.matches("\\d{2}/\\d{2}/\\d{2,4}") && !filtro.matches("[a-zA-Z].*")) {
+                        System.out.println("⚠️ Formato de fecha inválido. Usa dd/MM/yyyy o dd/MM/yy, por ejemplo: 21/04/2024 o 21/04/24.");
+                        continue;
+                    }
+                    List<Carrera> filtradas = carreras.stream().filter(c ->
+                        c.getNombre().equalsIgnoreCase(filtro) ||
+                        fechaCoincide(c.getFecha(), filtro)
+                    ).toList();
+                    if (filtradas.isEmpty()) {
+                        System.out.println("❌ No se encontraron carreras con ese nombre o fecha.");
+                    } else {
+                        for (Carrera carrera : filtradas) {
+                            mostrarCarreraConFormato(carrera);
+                        }
+                    }
+                    System.out.println("¿Deseas filtrar otra vez? (s/n)");
+                    String otra = scanner.nextLine().trim();
+                    if (!otra.equalsIgnoreCase("s")) break;
+                }
+            }
+        }
+    }
+
+    // Método auxiliar para comparar fechas en ambos formatos
+    private static boolean fechaCoincide(java.time.LocalDate fecha, String filtro) {
+        java.time.format.DateTimeFormatter largo = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        java.time.format.DateTimeFormatter corto = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yy");
+        try {
+            return fecha.format(largo).equals(filtro) || fecha.format(corto).equals(filtro);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Método auxiliar para mostrar la carrera con el formato ya implementado
+    private static void mostrarCarreraConFormato(Carrera carrera) {
+        System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+        System.out.printf("║ %-54s ║\n", carrera.getNombre() + " - " + 
+            (carrera.getCircuito() != null ? carrera.getCircuito().getPais() : "") + 
+            " (" + carrera.getFecha().format(DATE_FORMATTER) + ")");
+        System.out.println("╠════════════════════════════════════════════════════════════╣");
         
-        // Comparador para ordenar posiciones (números primero, luego DNF, DSQ, etc.)
-        Comparator<Map.Entry<Piloto, String>> comparadorPosicion = (e1, e2) -> {
-            String pos1 = e1.getValue();
-            String pos2 = e2.getValue();
-            boolean esNum1 = pos1.matches("\\d+");
-            boolean esNum2 = pos2.matches("\\d+");
-
-            if (esNum1 && esNum2) {
-                return Integer.compare(Integer.parseInt(pos1), Integer.parseInt(pos2));
-            } else if (esNum1) {
-                return -1;
-            } else if (esNum2) {
-                return 1;
-            } else {
-                return pos1.compareTo(pos2);
-            }
-        };
+        System.out.println("║ 📍 POSICIONES DE PILOTOS                                  ║");
+        System.out.println("╟────────────────────────────────────────────────────────────╢");
         
-        // Nuevo: Opción de filtrar o salir
-        System.out.println("Ingrese el nombre o la fecha (DD/MM/YYYY) de la carrera para buscar, o escriba 'salir' para regresar al menú:");
-        String input = scanner.nextLine().trim();
+        carrera.getPosicionesPilotos().entrySet().stream()
+                .sorted(Comparator.comparing(Map.Entry::getValue))
+                .forEach(e -> System.out.printf("║ %-3s │ %-30s (%s)%-15s ║\n",
+                        e.getValue(),
+                        e.getKey().getNombreCompleto(),
+                        e.getKey().getAbreviatura(),
+                        ""));
 
-        if (input.equalsIgnoreCase("salir")) {
-            return; // Salir del método
-        }
-
-        List<Carrera> carrerasAMostrar = carreras;
-        if (!input.isEmpty()) {
-            // Filtrar carreras
-            carrerasAMostrar = carreras.stream()
-                    .filter(carrera -> 
-                        carrera.getNombre().equalsIgnoreCase(input) || 
-                        carrera.getFecha().format(DATE_FORMATTER).equals(input)
-                    )
-                    .collect(Collectors.toList());
-
-            if (carrerasAMostrar.isEmpty()) {
-                System.out.println("❌ No se encontraron carreras con el nombre o fecha especificados.");
-                return; // Regresar al menú si no se encuentra nada
-            }
-        }
-
-        for (Carrera carrera : carrerasAMostrar) {
-            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
-            System.out.printf("║ %-54s ║\n", carrera.getNombre() + " - " + 
-                (carrera.getCircuito() != null ? carrera.getCircuito().getPais() : "") + 
-                " (" + carrera.getFecha().format(DATE_FORMATTER) + ")");
-            System.out.println("╠════════════════════════════════════════════════════════════╣");
-            
-            System.out.println("║ 📍 POSICIONES DE PILOTOS                                  ║");
-            System.out.println("╟────────────────────────────────────────────────────────────╢");
-            
-            carrera.getPosicionesPilotos().entrySet().stream()
-                    .sorted(comparadorPosicion)
-                    .forEach(e -> System.out.printf("║ %-3s │ %-30s (%s)%-15s ║\n",
-                            e.getValue(),
-                            e.getKey().getNombreCompleto(),
-                            e.getKey().getAbreviatura(),
-                            ""));
-
-            System.out.println("╟────────────────────────────────────────────────────────────╢");
-            System.out.println("║ 🏆 PUNTOS DE EQUIPOS                                      ║");
-            System.out.println("╟────────────────────────────────────────────────────────────╢");
-            
-            carrera.getPuntosEquipos().entrySet().stream()
-                    .filter(entry -> entry.getValue() > 0)
-                    .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
-                    .forEach(e -> System.out.printf("║ %-30s │ %3d puntos%-20s ║\n",
-                            e.getKey().getNombreCompleto(),
-                            e.getValue(),
-                            ""));
-            
-            System.out.println("╚════════════════════════════════════════════════════════════╝");
-            
-            System.out.println("\nPresiona Enter para ver la siguiente carrera, o escribe 'salir' para volver al menú...");
-            String nextInput = scanner.nextLine().trim();
-            if (nextInput.equalsIgnoreCase("salir")) {
-                break; // Salir del bucle interior
-            }
-        }
+        System.out.println("╟────────────────────────────────────────────────────────────╢");
+        System.out.println("║ 🏆 PUNTOS DE EQUIPOS                                      ║");
+        System.out.println("╟────────────────────────────────────────────────────────────╢");
+        
+        carrera.getPuntosEquipos().entrySet().stream()
+                .filter(entry -> entry.getValue() > 0)
+                .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                .forEach(e -> System.out.printf("║ %-30s │ %3d puntos%-20s ║\n",
+                        e.getKey().getNombreCompleto(),
+                        e.getValue(),
+                        ""));
+        
+        System.out.println("╚════════════════════════════════════════════════════════════╝");
     }
 
     // Método renombrado y funcionalmente correcto (muestra puntos POR carrera)
     private static void mostrarPuntosPorCarrera(List<Carrera> carreras) {
         Scanner scanner = new Scanner(System.in);
-        
-        for (Carrera carrera : carreras) {
-            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
-            System.out.printf("║ %-54s ║\n", carrera.getNombre() + " (" + carrera.getFecha().format(DATE_FORMATTER) + ")");
-            System.out.println("╠════════════════════════════════════════════════════════════╣");
-            
-            System.out.println("║ 🏎️ PUNTOS DE PILOTOS                                      ║");
-            System.out.println("╟────────────────────────────────────────────────────────────╢");
-            
-            carrera.getPuntosPilotos().entrySet().stream()
-                    .filter(entry -> entry.getValue() > 0)
-                    .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
-                    .forEach(e -> System.out.printf("║ %-30s (%s) │ %3d puntos%-15s ║\n",
-                            e.getKey().getNombreCompleto(),
-                            e.getKey().getAbreviatura(),
-                            e.getValue(),
-                            ""));
-            
-            System.out.println("╟────────────────────────────────────────────────────────────╢");
-            System.out.println("║ 🏆 PUNTOS DE EQUIPOS                                      ║");
-            System.out.println("╟────────────────────────────────────────────────────────────╢");
-            
-            carrera.getPuntosEquipos().entrySet().stream()
-                    .filter(entry -> entry.getValue() > 0)
-                    .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
-                    .forEach(e -> System.out.printf("║ %-30s │ %3d puntos%-20s ║\n",
-                            e.getKey().getNombreCompleto(),
-                            e.getValue(),
-                            ""));
-            
-            System.out.println("╚════════════════════════════════════════════════════════════╝");
-            
-            System.out.println("\nPresiona Enter para ver la siguiente carrera...");
-            scanner.nextLine();
+        while (true) {
+            System.out.println("\n¿Qué deseas hacer?");
+            System.out.println("1. Ver todas las carreras una por una");
+            System.out.println("2. Filtrar por nombre o fecha");
+            System.out.println("3. Salir");
+            System.out.print("Selecciona una opción: ");
+            String opcion = scanner.nextLine().trim();
+            if (opcion.equals("3")) return;
+            if (opcion.equals("1")) {
+                for (Carrera carrera : carreras) {
+                    mostrarPuntosCarreraConFormato(carrera);
+                    System.out.println("\nPresiona Enter para ver la siguiente carrera o escribe 'salir' para volver al menú...");
+                    String next = scanner.nextLine().trim();
+                    if (next.equalsIgnoreCase("salir")) return;
+                }
+                return;
+            }
+            if (opcion.equals("2")) {
+                while (true) {
+                    System.out.println("\nFiltra por nombre o fecha (formato: dd/MM/yyyy o dd/MM/yy). Escribe 'salir' para volver al menú.");
+                    String filtro = scanner.nextLine().trim();
+                    if (filtro.equalsIgnoreCase("salir")) break;
+                    if (!filtro.matches("\\d{2}/\\d{2}/\\d{2,4}") && !filtro.matches("[a-zA-Z].*")) {
+                        System.out.println("⚠️ Formato de fecha inválido. Usa dd/MM/yyyy o dd/MM/yy, por ejemplo: 21/04/2024 o 21/04/24.");
+                        continue;
+                    }
+                    List<Carrera> filtradas = carreras.stream().filter(c ->
+                        c.getNombre().equalsIgnoreCase(filtro) ||
+                        fechaCoincide(c.getFecha(), filtro)
+                    ).toList();
+                    if (filtradas.isEmpty()) {
+                        System.out.println("❌ No se encontraron carreras con ese nombre o fecha.");
+                    } else {
+                        for (Carrera carrera : filtradas) {
+                            mostrarPuntosCarreraConFormato(carrera);
+                        }
+                    }
+                    System.out.println("¿Deseas filtrar otra vez? (s/n)");
+                    String otra = scanner.nextLine().trim();
+                    if (!otra.equalsIgnoreCase("s")) break;
+                }
+            }
         }
+    }
+
+    // Método auxiliar para mostrar los puntos de la carrera con el formato ya implementado
+    private static void mostrarPuntosCarreraConFormato(Carrera carrera) {
+        System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+        System.out.printf("║ %-54s ║\n", carrera.getNombre() + " (" + carrera.getFecha().format(DATE_FORMATTER) + ")");
+        System.out.println("╠════════════════════════════════════════════════════════════╣");
+        
+        System.out.println("║ 🏎️ PUNTOS DE PILOTOS                                      ║");
+        System.out.println("╟────────────────────────────────────────────────────────────╢");
+        
+        carrera.getPuntosPilotos().entrySet().stream()
+                .filter(entry -> entry.getValue() > 0)
+                .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                .forEach(e -> System.out.printf("║ %-30s (%s) │ %3d puntos%-15s ║\n",
+                        e.getKey().getNombreCompleto(),
+                        e.getKey().getAbreviatura(),
+                        e.getValue(),
+                        ""));
+        
+        System.out.println("╟────────────────────────────────────────────────────────────╢");
+        System.out.println("║ 🏆 PUNTOS DE EQUIPOS                                      ║");
+        System.out.println("╟────────────────────────────────────────────────────────────╢");
+        
+        carrera.getPuntosEquipos().entrySet().stream()
+                .filter(entry -> entry.getValue() > 0)
+                .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                .forEach(e -> System.out.printf("║ %-30s │ %3d puntos%-20s ║\n",
+                        e.getKey().getNombreCompleto(),
+                        e.getValue(),
+                        ""));
+        
+        System.out.println("╚════════════════════════════════════════════════════════════╝");
     }
 
     // Método corregido para mostrar pilotos del equipo y más info
@@ -423,5 +478,143 @@ public class Main {
                         c.getPais()));
         
         System.out.println("╚════════════════════════════════════════════════════════════╝");
+    }
+
+    // Método para encontrar un equipo por ID o nombre
+    private static Equipo encontrarEquipo(List<Equipo> equipos, String identificador) {
+        try {
+            int id = Integer.parseInt(identificador);
+            return equipos.stream()
+                          .filter(equipo -> equipo.getId() == id)
+                          .findFirst()
+                          .orElse(null);
+        } catch (NumberFormatException e) {
+            return equipos.stream()
+                          .filter(equipo -> equipo.getNombreCompleto().equalsIgnoreCase(identificador))
+                          .findFirst()
+                          .orElse(null);
+        }
+    }
+
+    private static void compararEquipos(List<Equipo> equipos, Scanner scanner) {
+        System.out.println("\n\n╔════════════════════════════════════════════════════════════╗");
+        System.out.println("║                🤝 COMPARACIÓN DE EQUIPOS                  ║");
+        System.out.println("╠════════════════════════════════════════════════════════════╣");
+        System.out.print("Ingrese el nombre o ID del primer equipo: ");
+        String idEquipo1 = scanner.nextLine().trim();
+        System.out.print("Ingrese el nombre o ID del segundo equipo: ");
+        String idEquipo2 = scanner.nextLine().trim();
+
+        Equipo equipo1 = encontrarEquipo(equipos, idEquipo1);
+        Equipo equipo2 = encontrarEquipo(equipos, idEquipo2);
+
+        if (equipo1 == null) {
+            System.out.println("❌ Primer equipo no encontrado: " + idEquipo1);
+        } else if (equipo2 == null) {
+            System.out.println("❌ Segundo equipo no encontrado: " + idEquipo2);
+        } else {
+            double diferenciaPuntos = Math.abs(equipo1.getPuntos2024() - equipo2.getPuntos2024());
+            int victorias1 = equipo1.getCarrerasGanadas2024() != null ? equipo1.getCarrerasGanadas2024() : 0;
+            int victorias2 = equipo2.getCarrerasGanadas2024() != null ? equipo2.getCarrerasGanadas2024() : 0;
+            int diferenciaVictorias = Math.abs(victorias1 - victorias2);
+
+            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+            System.out.println("║               📊 RESULTADO DE LA COMPARACIÓN                ║");
+            System.out.println("╠════════════════════════════════════════════════════════════╣");
+            System.out.printf("║ %-25s | %-25s ║\n", equipo1.getNombreCompleto(), equipo2.getNombreCompleto());
+            System.out.println("╟─────────────────────────┼─────────────────────────╢");
+            System.out.printf("║ Puntos 2024: %-11.1f | Puntos 2024: %-11.1f ║\n", equipo1.getPuntos2024(), equipo2.getPuntos2024());
+            System.out.printf("║ Victorias 2024: %-8d | Victorias 2024: %-8d ║\n", victorias1, victorias2);
+            System.out.println("╟─────────────────────────┼─────────────────────────╢");
+            System.out.printf("║ Diferencia de puntos: %-8.1f                      ║\n", diferenciaPuntos);
+            System.out.printf("║ Diferencia de victorias: %-6d                      ║\n", diferenciaVictorias);
+            System.out.println("╚════════════════════════════════════════════════════════════╝\n");
+
+            if (equipo1.getPuntos2024() > equipo2.getPuntos2024()) {
+                System.out.printf("✅ %s tiene más puntos (%.1f) que %s (%.1f) en 2024.\n",
+                                   equipo1.getNombreCompleto(), equipo1.getPuntos2024(),
+                                   equipo2.getNombreCompleto(), equipo2.getPuntos2024());
+            } else if (equipo2.getPuntos2024() > equipo1.getPuntos2024()) {
+                 System.out.printf("✅ %s tiene más puntos (%.1f) que %s (%.1f) en 2024.\n",
+                                   equipo2.getNombreCompleto(), equipo2.getPuntos2024(),
+                                   equipo1.getNombreCompleto(), equipo1.getPuntos2024());
+            } else {
+                System.out.printf("🤝 %s y %s tienen los mismos puntos (%.1f) en 2024.\n",
+                                   equipo1.getNombreCompleto(), equipo2.getNombreCompleto(), equipo1.getPuntos2024());
+            }
+        }
+        System.out.println("\n");
+    }
+
+    // Método para encontrar un piloto por ID, nombre o abreviatura
+    private static Piloto encontrarPiloto(List<Piloto> pilotos, String identificador) {
+        try {
+            int id = Integer.parseInt(identificador);
+            return pilotos.stream()
+                         .filter(p -> p.getId() == id)
+                         .findFirst()
+                         .orElse(null);
+        } catch (NumberFormatException e) {
+            return pilotos.stream()
+                         .filter(p -> p.getNombreCompleto().equalsIgnoreCase(identificador) ||
+                                      p.getAbreviatura().equalsIgnoreCase(identificador))
+                         .findFirst()
+                         .orElse(null);
+        }
+    }
+
+    private static void compararPilotos(List<Piloto> pilotos, Scanner scanner) {
+        System.out.println("\n\n╔════════════════════════════════════════════════════════════╗");
+        System.out.println("║                 🤝 COMPARACIÓN DE PILOTOS                  ║");
+        System.out.println("╠════════════════════════════════════════════════════════════╣");
+        System.out.print("Ingrese el nombre, ID o abreviatura del primer piloto: ");
+        String idPiloto1 = scanner.nextLine().trim();
+        System.out.print("Ingrese el nombre, ID o abreviatura del segundo piloto: ");
+        String idPiloto2 = scanner.nextLine().trim();
+
+        Piloto piloto1 = encontrarPiloto(pilotos, idPiloto1);
+        Piloto piloto2 = encontrarPiloto(pilotos, idPiloto2);
+
+        if (piloto1 == null) {
+            System.out.println("❌ Primer piloto no encontrado: " + idPiloto1);
+        } else if (piloto2 == null) {
+            System.out.println("❌ Segundo piloto no encontrado: " + idPiloto2);
+        } else {
+            double diferenciaPuntos = Math.abs(piloto1.getPuntos2024() - piloto2.getPuntos2024());
+            int victorias1 = piloto1.getCarrerasGanadas() != null ? piloto1.getCarrerasGanadas() : 0;
+            int victorias2 = piloto2.getCarrerasGanadas() != null ? piloto2.getCarrerasGanadas() : 0;
+            int diferenciaVictorias = Math.abs(victorias1 - victorias2);
+            int podios1 = piloto1.getPodios();
+            int podios2 = piloto2.getPodios();
+            int diferenciaPodios = Math.abs(podios1 - podios2);
+
+            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+            System.out.println("║               📊 RESULTADO DE LA COMPARACIÓN                ║");
+            System.out.println("╠════════════════════════════════════════════════════════════╣");
+            System.out.printf("║ %-25s | %-25s ║\n", piloto1.getNombreCompleto(), piloto2.getNombreCompleto());
+            System.out.println("╟─────────────────────────┼─────────────────────────╢");
+            System.out.printf("║ Puntos 2024: %-11.1f | Puntos 2024: %-11.1f ║\n", piloto1.getPuntos2024(), piloto2.getPuntos2024());
+            System.out.printf("║ Victorias: %-13d | Victorias: %-13d ║\n", victorias1, victorias2);
+            System.out.printf("║ Podios: %-16d | Podios: %-16d ║\n", podios1, podios2);
+            System.out.println("╟─────────────────────────┼─────────────────────────╢");
+            System.out.printf("║ Diferencia de puntos: %-8.1f                      ║\n", diferenciaPuntos);
+            System.out.printf("║ Diferencia de victorias: %-6d                      ║\n", diferenciaVictorias);
+            System.out.printf("║ Diferencia de podios: %-9d                      ║\n", diferenciaPodios);
+            System.out.println("╚════════════════════════════════════════════════════════════╝\n");
+
+            if (piloto1.getPuntos2024() > piloto2.getPuntos2024()) {
+                System.out.printf("✅ %s tiene más puntos (%.1f) que %s (%.1f) en 2024.\n",
+                                   piloto1.getNombreCompleto(), piloto1.getPuntos2024(),
+                                   piloto2.getNombreCompleto(), piloto2.getPuntos2024());
+            } else if (piloto2.getPuntos2024() > piloto1.getPuntos2024()) {
+                System.out.printf("✅ %s tiene más puntos (%.1f) que %s (%.1f) en 2024.\n",
+                                   piloto2.getNombreCompleto(), piloto2.getPuntos2024(),
+                                   piloto1.getNombreCompleto(), piloto1.getPuntos2024());
+            } else {
+                System.out.printf("🤝 %s y %s tienen los mismos puntos (%.1f) en 2024.\n",
+                                   piloto1.getNombreCompleto(), piloto2.getNombreCompleto(), piloto1.getPuntos2024());
+            }
+        }
+        System.out.println("\n");
     }
 }
