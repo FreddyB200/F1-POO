@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Map;
 import java.util.Optional; // Importar para Optional
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -51,27 +52,36 @@ public class Main {
     private static void mostrarMenu() {
         // Carga única de datos al inicio
         List<Equipo> equipos = CargadorDatos.cargarEquipos();
-        List<Piloto> pilotos = CargadorDatos.cargarPilotos(); // CargadorDatos ya debe vincular pilotos a equipos
+        List<Piloto> pilotos = CargadorDatos.cargarPilotos();
         List<Circuito> circuitos = CargadorDatos.cargarCircuitos();
         List<Carrera> carreras = CargadorDatos.cargarCarreras(pilotos, equipos, circuitos);
 
         Scanner scanner = new Scanner(System.in);
-        int opcion = -1; // Inicializar con valor inválido
+        int opcion = -1;
 
         String menuCompleto = """
-                ==== MENÚ DE GESTIÓN F1 - TEMPORADA 2024 ====
-                        == SELECCIONA UNA OPCION ==
-                         
-1. Ver posiciones de pilotos y escuderías en cada carrera
-2. Ver puntos POR CADA carrera (NO acumulados)
-3. Información general de un equipo
-4. Información general de un piloto
-5. Información general de un circuito
-6. Listar todos los pilotos (con ID)
-7. Listar todos los equipos (con ID)
-8. Listar todos los circuitos (con ID)
-0. Salir
-        """;
+                ╔════════════════════════════════════════════════════════════╗
+                ║                  GESTIÓN F1 - TEMPORADA 2024                ║
+                ╠════════════════════════════════════════════════════════════╣
+                ║                                                            ║
+                ║  📊 ESTADÍSTICAS Y RESULTADOS                             ║
+                ║    1. Ver posiciones por carrera                           ║
+                ║    2. Ver puntos por carrera                               ║
+                ║                                                            ║
+                ║  👥 INFORMACIÓN DE PARTICIPANTES                          ║
+                ║    3. Información de equipo                                ║
+                ║    4. Información de piloto                                ║
+                ║    5. Información de circuito                              ║
+                ║                                                            ║
+                ║  📋 LISTADOS                                              ║
+                ║    6. Listar pilotos                                       ║
+                ║    7. Listar equipos                                       ║
+                ║    8. Listar circuitos                                     ║
+                ║                                                            ║
+                ║  0. Salir                                                  ║
+                ║                                                            ║
+                ╚════════════════════════════════════════════════════════════╝
+                """;
         do {
             System.out.println(menuCompleto);
 
@@ -88,9 +98,9 @@ public class Main {
             switch (opcion) {
                 case 1 -> mostrarPosicionesPilotosEquipos(carreras);
                 case 2 -> mostrarPuntosPorCarrera(carreras); // Método renombrado
-                case 3 -> mostrarInfoEquipo(equipos, scanner); // Ya no necesita 'pilotos' si CargadorDatos vincula
+                case 3 -> mostrarInfoEquipo(equipos, scanner);
                 case 4 -> mostrarInfoPiloto(pilotos, scanner);
-                case 5 -> mostrarInfoCircuito(circuitos, scanner); // Modificado para buscar por ID
+                case 5 -> mostrarInfoCircuito(circuitos, scanner);
                 case 6 -> listarPilotos(pilotos);
                 case 7 -> listarEquipos(equipos);
                 case 8 -> listarCircuitos(circuitos); // Nuevo método llamado
@@ -104,8 +114,8 @@ public class Main {
 
     // Método corregido para ordenar posiciones correctamente
     private static void mostrarPosicionesPilotosEquipos(List<Carrera> carreras) {
-        System.out.println("\n=== POSICIONES DE PILOTOS Y ESCUDERÍAS POR CARRERA ===");
-
+        Scanner scanner = new Scanner(System.in);
+        
         // Comparador para ordenar posiciones (números primero, luego DNF, DSQ, etc.)
         Comparator<Map.Entry<Piloto, String>> comparadorPosicion = (e1, e2) -> {
             String pos1 = e1.getValue();
@@ -114,58 +124,117 @@ public class Main {
             boolean esNum2 = pos2.matches("\\d+");
 
             if (esNum1 && esNum2) {
-                return Integer.compare(Integer.parseInt(pos1), Integer.parseInt(pos2)); // Ambos números
+                return Integer.compare(Integer.parseInt(pos1), Integer.parseInt(pos2));
             } else if (esNum1) {
-                return -1; // Número antes que texto
+                return -1;
             } else if (esNum2) {
-                return 1; // Texto después que número
+                return 1;
             } else {
-                // Ambos texto (DNF, DSQ, etc.), ordena alfabéticamente
-                // Podrías añadir lógica extra si quieres un orden específico para DNF/DSQ
                 return pos1.compareTo(pos2);
             }
         };
+        
+        // Nuevo: Opción de filtrar o salir
+        System.out.println("Ingrese el nombre o la fecha (DD/MM/YYYY) de la carrera para buscar, o escriba 'salir' para regresar al menú:");
+        String input = scanner.nextLine().trim();
 
-        for (Carrera carrera : carreras) {
-            System.out.println("\n> " + carrera.getNombre() + " - " + (carrera.getCircuito() != null ? carrera.getCircuito().getPais() : "") + " (" + carrera.getFecha().format(DATE_FORMATTER) + ")");
-            System.out.println("  --- Pilotos ---");
+        if (input.equalsIgnoreCase("salir")) {
+            return; // Salir del método
+        }
+
+        List<Carrera> carrerasAMostrar = carreras;
+        if (!input.isEmpty()) {
+            // Filtrar carreras
+            carrerasAMostrar = carreras.stream()
+                    .filter(carrera -> 
+                        carrera.getNombre().equalsIgnoreCase(input) || 
+                        carrera.getFecha().format(DATE_FORMATTER).equals(input)
+                    )
+                    .collect(Collectors.toList());
+
+            if (carrerasAMostrar.isEmpty()) {
+                System.out.println("❌ No se encontraron carreras con el nombre o fecha especificados.");
+                return; // Regresar al menú si no se encuentra nada
+            }
+        }
+
+        for (Carrera carrera : carrerasAMostrar) {
+            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+            System.out.printf("║ %-54s ║\n", carrera.getNombre() + " - " + 
+                (carrera.getCircuito() != null ? carrera.getCircuito().getPais() : "") + 
+                " (" + carrera.getFecha().format(DATE_FORMATTER) + ")");
+            System.out.println("╠════════════════════════════════════════════════════════════╣");
+            
+            System.out.println("║ 📍 POSICIONES DE PILOTOS                                  ║");
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            
             carrera.getPosicionesPilotos().entrySet().stream()
-                    .sorted(comparadorPosicion) // Usar el comparador personalizado
-                    .forEach(e -> System.out.printf("    Pos %-3s : %s (%s)\n", // Formato mejorado
+                    .sorted(comparadorPosicion)
+                    .forEach(e -> System.out.printf("║ %-3s │ %-30s (%s)%-15s ║\n",
                             e.getValue(),
                             e.getKey().getNombreCompleto(),
-                            e.getKey().getAbreviatura()));
+                            e.getKey().getAbreviatura(),
+                            ""));
 
-            System.out.println("  --- Puntos Equipos (en esta carrera) ---");
-            // Ordenar equipos por puntos descendente para esta carrera
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            System.out.println("║ 🏆 PUNTOS DE EQUIPOS                                      ║");
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            
             carrera.getPuntosEquipos().entrySet().stream()
-                    .filter(entry -> entry.getValue() > 0) // Opcional: mostrar solo equipos que puntuaron
+                    .filter(entry -> entry.getValue() > 0)
                     .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
-                    .forEach(e -> System.out.printf("    %s : %d puntos\n", e.getKey().getNombreCompleto(), e.getValue()));
+                    .forEach(e -> System.out.printf("║ %-30s │ %3d puntos%-20s ║\n",
+                            e.getKey().getNombreCompleto(),
+                            e.getValue(),
+                            ""));
+            
+            System.out.println("╚════════════════════════════════════════════════════════════╝");
+            
+            System.out.println("\nPresiona Enter para ver la siguiente carrera, o escribe 'salir' para volver al menú...");
+            String nextInput = scanner.nextLine().trim();
+            if (nextInput.equalsIgnoreCase("salir")) {
+                break; // Salir del bucle interior
+            }
         }
     }
 
     // Método renombrado y funcionalmente correcto (muestra puntos POR carrera)
     private static void mostrarPuntosPorCarrera(List<Carrera> carreras) {
-        System.out.println("\n=== PUNTOS OBTENIDOS POR CARRERA ===");
+        Scanner scanner = new Scanner(System.in);
+        
         for (Carrera carrera : carreras) {
-            System.out.println("\n> " + carrera.getNombre() + " (" + carrera.getFecha().format(DATE_FORMATTER) + ")");
-            System.out.println("  --- Pilotos (Puntos en esta carrera) ---");
+            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+            System.out.printf("║ %-54s ║\n", carrera.getNombre() + " (" + carrera.getFecha().format(DATE_FORMATTER) + ")");
+            System.out.println("╠════════════════════════════════════════════════════════════╣");
+            
+            System.out.println("║ 🏎️ PUNTOS DE PILOTOS                                      ║");
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            
             carrera.getPuntosPilotos().entrySet().stream()
-                    .filter(entry -> entry.getValue() > 0) // Mostrar solo pilotos que puntuaron
-                    .sorted((a, b) -> b.getValue().compareTo(a.getValue())) // Ordenar por puntos desc
-                    .forEach(e -> System.out.printf("    %s (%s) : %d puntos\n",
+                    .filter(entry -> entry.getValue() > 0)
+                    .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                    .forEach(e -> System.out.printf("║ %-30s (%s) │ %3d puntos%-15s ║\n",
                             e.getKey().getNombreCompleto(),
                             e.getKey().getAbreviatura(),
-                            e.getValue()));
-
-            System.out.println("  --- Equipos (Puntos en esta carrera) ---");
+                            e.getValue(),
+                            ""));
+            
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            System.out.println("║ 🏆 PUNTOS DE EQUIPOS                                      ║");
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            
             carrera.getPuntosEquipos().entrySet().stream()
-                    .filter(entry -> entry.getValue() > 0) // Mostrar solo equipos que puntuaron
-                    .sorted((a, b) -> b.getValue().compareTo(a.getValue())) // Ordenar por puntos desc
-                    .forEach(e -> System.out.printf("    %s : %d puntos\n",
+                    .filter(entry -> entry.getValue() > 0)
+                    .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                    .forEach(e -> System.out.printf("║ %-30s │ %3d puntos%-20s ║\n",
                             e.getKey().getNombreCompleto(),
-                            e.getValue()));
+                            e.getValue(),
+                            ""));
+            
+            System.out.println("╚════════════════════════════════════════════════════════════╝");
+            
+            System.out.println("\nPresiona Enter para ver la siguiente carrera...");
+            scanner.nextLine();
         }
     }
 
@@ -183,32 +252,36 @@ public class Main {
         }
 
         if (equipoEncontrado != null) {
-            System.out.println("\n--- Información del Equipo ---");
-            System.out.println("ID: " + equipoEncontrado.getId());
-            System.out.println("Nombre: " + equipoEncontrado.getNombreCompleto());
-            System.out.println("Director: " + equipoEncontrado.getDirectorGeneral());
-            System.out.println("País de origen: " + equipoEncontrado.getPaisOrigen());
-            System.out.println("Proveedor de motor: " + equipoEncontrado.getProveedorMotor());
-            System.out.println("Puntos 2024: " + equipoEncontrado.getPuntos2024());
-            System.out.println("Campeonatos Históricos: " + equipoEncontrado.getCampeonatosGanados());
-            // Mostrar Carreras Ganadas 2024 (manejando null)
-            Integer ganadas2024 = equipoEncontrado.getCarrerasGanadas2024();
-            System.out.println("Carreras Ganadas 2024: " + (ganadas2024 != null ? ganadas2024 : "0"));
-            // Mostrar Última Victoria (manejando null)
-            LocalDate ultimaVictoria = equipoEncontrado.getUltimaVictoria();
-            System.out.println("Última Victoria: " + (ultimaVictoria != null ? ultimaVictoria.format(DATE_FORMATTER) : "N/A"));
-
-            System.out.println("Pilotos 2024:");
-            List<Piloto> pilotosDelEquipo = equipoEncontrado.getPilotos(); // Usa el método del modelo Equipo
+            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+            System.out.printf("║ 🏎️  %-50s ║\n", equipoEncontrado.getNombreCompleto());
+            System.out.println("╠════════════════════════════════════════════════════════════╣");
+            System.out.printf("║ ID: %-52d ║\n", equipoEncontrado.getId());
+            System.out.printf("║ Director: %-48s ║\n", equipoEncontrado.getDirectorGeneral());
+            System.out.printf("║ País: %-50s ║\n", equipoEncontrado.getPaisOrigen());
+            System.out.printf("║ Motor: %-49s ║\n", equipoEncontrado.getProveedorMotor());
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            System.out.println("║ 📊 ESTADÍSTICAS 2024                                      ║");
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            System.out.printf("║ Puntos: %-49.1f ║\n", equipoEncontrado.getPuntos2024());
+            System.out.printf("║ Carreras Ganadas: %-42d ║\n", 
+                equipoEncontrado.getCarrerasGanadas2024() != null ? equipoEncontrado.getCarrerasGanadas2024() : 0);
+            System.out.printf("║ Última Victoria: %-44s ║\n", 
+                equipoEncontrado.getUltimaVictoria() != null ? equipoEncontrado.getUltimaVictoria().format(DATE_FORMATTER) : "N/A");
+            System.out.printf("║ Campeonatos Históricos: %-38d ║\n", equipoEncontrado.getCampeonatosGanados());
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            System.out.println("║ 👥 PILOTOS 2024                                           ║");
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            
+            List<Piloto> pilotosDelEquipo = equipoEncontrado.getPilotos();
             if (pilotosDelEquipo != null && !pilotosDelEquipo.isEmpty()) {
-                pilotosDelEquipo.forEach(p -> System.out.printf("  - %s (#%d, %s)\n",
-                        p.getNombreCompleto(), p.getNumero(), p.getAbreviatura()));
+                pilotosDelEquipo.forEach(p -> System.out.printf("║ • %-30s (#%d, %s)%-15s ║\n",
+                        p.getNombreCompleto(), p.getNumero(), p.getAbreviatura(), ""));
             } else {
-                // Esto no debería ocurrir si CargadorDatos hizo bien la vinculación
-                System.out.println("  (No se encontraron pilotos vinculados directamente en el objeto Equipo)");
+                System.out.println("║ No se encontraron pilotos vinculados                    ║");
             }
+            System.out.println("╚════════════════════════════════════════════════════════════╝");
         } else {
-            System.out.println("Equipo no encontrado.");
+            System.out.println("❌ Equipo no encontrado.");
         }
     }
 
@@ -221,7 +294,6 @@ public class Main {
             int id = Integer.parseInt(input);
             pilotoEncontrado = pilotos.stream().filter(p -> p.getId() == id).findFirst().orElse(null);
         } catch (NumberFormatException e) {
-            // Buscar por nombre completo O abreviatura (case-insensitive)
             pilotoEncontrado = pilotos.stream()
                     .filter(p -> p.getNombreCompleto().equalsIgnoreCase(input) || p.getAbreviatura().equalsIgnoreCase(input))
                     .findFirst()
@@ -229,34 +301,36 @@ public class Main {
         }
 
         if (pilotoEncontrado != null) {
-            System.out.println("\n--- Información del Piloto ---");
-            System.out.println("ID: " + pilotoEncontrado.getId());
-            System.out.println("Nombre completo: " + pilotoEncontrado.getNombreCompleto());
-            System.out.println("Abreviatura: " + pilotoEncontrado.getAbreviatura());
-            System.out.println("Número: " + pilotoEncontrado.getNumero());
-            // Manejar posible equipo null (aunque no debería pasar con los datos cargados)
-            System.out.println("Equipo 2024: " + (pilotoEncontrado.getEquipo() != null ? pilotoEncontrado.getEquipo().getNombreCompleto() : "N/A"));
-            System.out.println("Nacionalidad: " + pilotoEncontrado.getNacionalidad());
-            System.out.println("Edad: " + pilotoEncontrado.getEdad());
-            System.out.println("Puntos 2024: " + pilotoEncontrado.getPuntos2024());
-            System.out.println("Campeonatos Mundiales: " + pilotoEncontrado.getCampeonatosGanados());
-            System.out.println("--- Estadísticas de Carrera (Históricas) ---");
-            System.out.println("Participaciones en GPs: " + pilotoEncontrado.getCarrerasDisputadas());
-            // Manejar null para Integer (aunque en CargadorDatos les dimos valor)
-            System.out.println("Victorias: " + (pilotoEncontrado.getCarrerasGanadas() != null ? pilotoEncontrado.getCarrerasGanadas() : "0"));
-            System.out.println("Podios: " + (pilotoEncontrado.getPodios() != null ? pilotoEncontrado.getPodios() : "0"));
-            System.out.println("Poles: " + (pilotoEncontrado.getPoles() != null ? pilotoEncontrado.getPoles() : "0"));
-            System.out.println("Vueltas rápidas: " + (pilotoEncontrado.getVueltasRapidas() != null ? pilotoEncontrado.getVueltasRapidas() : "0"));
-            // Info de TemporadaActual (podría ser útil)
-            TemporadaActual ta = pilotoEncontrado.getTemporadaActual();
-            if (ta != null) {
-                System.out.println("--- Info Final Temporada 2024 ---");
-                System.out.println("Posición Final Campeonato: " + ta.getPosicionCampeonato());
-                //System.out.println("Carreras Completadas (en 2024 por este piloto): " + ta.getCarrerasCompletadas());
-            }
-
+            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+            System.out.printf("║ 🏎️  %-50s ║\n", pilotoEncontrado.getNombreCompleto());
+            System.out.println("╠════════════════════════════════════════════════════════════╣");
+            System.out.printf("║ ID: %-52d ║\n", pilotoEncontrado.getId());
+            System.out.printf("║ Número: %-49d ║\n", pilotoEncontrado.getNumero());
+            System.out.printf("║ Abreviatura: %-45s ║\n", pilotoEncontrado.getAbreviatura());
+            System.out.printf("║ Equipo: %-48s ║\n", 
+                pilotoEncontrado.getEquipo() != null ? pilotoEncontrado.getEquipo().getNombreCompleto() : "N/A");
+            System.out.printf("║ Nacionalidad: %-45s ║\n", pilotoEncontrado.getNacionalidad());
+            System.out.printf("║ Edad: %-51d ║\n", pilotoEncontrado.getEdad());
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            System.out.println("║ 📊 ESTADÍSTICAS 2024                                      ║");
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            System.out.printf("║ Puntos: %-49.1f ║\n", pilotoEncontrado.getPuntos2024());
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            System.out.println("║ 🏆 ESTADÍSTICAS HISTÓRICAS                               ║");
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            System.out.printf("║ Campeonatos Mundiales: %-38d ║\n", pilotoEncontrado.getCampeonatosGanados());
+            System.out.printf("║ GPs Disputados: %-42d ║\n", pilotoEncontrado.getCarrerasDisputadas());
+            System.out.printf("║ Victorias: %-46d ║\n", 
+                pilotoEncontrado.getCarrerasGanadas() != null ? pilotoEncontrado.getCarrerasGanadas() : 0);
+            System.out.printf("║ Podios: %-47d ║\n", 
+                pilotoEncontrado.getPodios() != null ? pilotoEncontrado.getPodios() : 0);
+            System.out.printf("║ Poles: %-48d ║\n", 
+                pilotoEncontrado.getPoles() != null ? pilotoEncontrado.getPoles() : 0);
+            System.out.printf("║ Vueltas Rápidas: %-41d ║\n", 
+                pilotoEncontrado.getVueltasRapidas() != null ? pilotoEncontrado.getVueltasRapidas() : 0);
+            System.out.println("╚════════════════════════════════════════════════════════════╝");
         } else {
-            System.out.println("Piloto no encontrado.");
+            System.out.println("❌ Piloto no encontrado.");
         }
     }
 
@@ -264,68 +338,90 @@ public class Main {
     private static void mostrarInfoCircuito(List<Circuito> circuitos, Scanner scanner) {
         System.out.print("Ingrese el ID o nombre del circuito: ");
         String input = scanner.nextLine().trim();
-        Optional<Circuito> circuitoOpt = Optional.empty(); // Usar Optional para manejar el resultado
-
+        Circuito circuitoEncontrado = null;
         try {
             int id = Integer.parseInt(input);
-            circuitoOpt = circuitos.stream().filter(c -> c.getId() == id).findFirst();
+            circuitoEncontrado = circuitos.stream().filter(c -> c.getId() == id).findFirst().orElse(null);
         } catch (NumberFormatException e) {
-            // Si no es número, buscar por nombre (case-insensitive)
-            circuitoOpt = circuitos.stream()
+            circuitoEncontrado = circuitos.stream()
                     .filter(c -> c.getNombre().equalsIgnoreCase(input))
-                    .findFirst();
+                    .findFirst()
+                    .orElse(null);
         }
 
-        // Usar ifPresentOrElse para manejar si se encontró o no
-        circuitoOpt.ifPresentOrElse(
-                c -> { // Código a ejecutar si se encuentra el circuito
-                    System.out.println("\n--- Información del Circuito ---");
-                    System.out.println("ID: " + c.getId());
-                    System.out.println("Nombre: " + c.getNombre());
-                    System.out.println("País: " + c.getPais());
-                    System.out.println("Fecha carrera principal 2024: " + c.getFechaCarreraPrincipal().format(DATE_FORMATTER));
-                    LocalDate sprintDate = c.getFechaCarreraSprint();
-                    System.out.println("Fecha carrera sprint 2024: " + (sprintDate != null ? sprintDate.format(DATE_FORMATTER) : "N/A"));
-                },
-                () -> { // Código a ejecutar si NO se encuentra
-                    System.out.println("Circuito no encontrado.");
-                }
-        );
+        if (circuitoEncontrado != null) {
+            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+            System.out.printf("║ 🏁  %-50s ║\n", circuitoEncontrado.getNombre());
+            System.out.println("╠════════════════════════════════════════════════════════════╣");
+            System.out.printf("║ ID: %-52d ║\n", circuitoEncontrado.getId());
+            System.out.printf("║ País: %-50s ║\n", circuitoEncontrado.getPais());
+            System.out.printf("║ Ciudad: %-48s ║\n", circuitoEncontrado.getCiudad());
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            System.out.println("║ 📏 CARACTERÍSTICAS                                        ║");
+            System.out.println("╟────────────────────────────────────────────────────────────╢");
+            System.out.printf("║ Longitud: %-46.3f km ║\n", circuitoEncontrado.getLongitud());
+            System.out.printf("║ Vueltas: %-48d ║\n", circuitoEncontrado.getVueltas());
+            System.out.printf("║ Distancia Total: %-40.3f km ║\n", 
+                circuitoEncontrado.getLongitud() * circuitoEncontrado.getVueltas());
+            System.out.println("╚════════════════════════════════════════════════════════════╝");
+        } else {
+            System.out.println("❌ Circuito no encontrado.");
+        }
     }
 
     // Ya mostraba ID, sin cambios necesarios aquí
     private static void listarPilotos(List<Piloto> pilotos) {
-        System.out.println("\n=== LISTA DE PILOTOS 2024 ===");
+        System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+        System.out.println("║ 📋 LISTADO DE PILOTOS 2024                                 ║");
+        System.out.println("╠════════════════════════════════════════════════════════════╣");
+        System.out.println("║ ID │ Número │ Abrev. │ Nombre Completo                    ║");
+        System.out.println("╟────┼────────┼────────┼────────────────────────────────────╢");
+        
         pilotos.stream()
-                .sorted(Comparator.comparing(Piloto::getId)) // Ordenar por ID
-                .forEach(p -> System.out.printf("ID: %-2d | Nombre: %-25s | Abrev: %-3s | Equipo: %s\n",
+                .sorted(Comparator.comparing(Piloto::getNumero))
+                .forEach(p -> System.out.printf("║ %2d │ %6d │ %-6s │ %-35s ║\n",
                         p.getId(),
-                        p.getNombreCompleto(),
+                        p.getNumero(),
                         p.getAbreviatura(),
-                        (p.getEquipo() != null ? p.getEquipo().getNombreCompleto() : "N/A")));
+                        p.getNombreCompleto()));
+        
+        System.out.println("╚════════════════════════════════════════════════════════════╝");
     }
 
     // Ya mostraba ID, sin cambios necesarios aquí
     private static void listarEquipos(List<Equipo> equipos) {
-        System.out.println("\n=== LISTA DE EQUIPOS 2024 ===");
+        System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+        System.out.println("║ 📋 LISTADO DE EQUIPOS 2024                                 ║");
+        System.out.println("╠════════════════════════════════════════════════════════════╣");
+        System.out.println("║ ID │ Nombre Completo                    │ Puntos 2024      ║");
+        System.out.println("╟────┼────────────────────────────────────┼─────────────────╢");
+        
         equipos.stream()
-                .sorted(Comparator.comparing(Equipo::getId)) // Ordenar por ID
-                .forEach(eq -> System.out.printf("ID: %-2d | Nombre: %-30s | Director: %-20s | País: %s\n",
-                        eq.getId(),
-                        eq.getNombreCompleto(),
-                        eq.getDirectorGeneral(),
-                        eq.getPaisOrigen()));
+                .sorted(Comparator.comparing(Equipo::getPuntos2024).reversed())
+                .forEach(e -> System.out.printf("║ %2d │ %-35s │ %6.1f puntos%-5s ║\n",
+                        e.getId(),
+                        e.getNombreCompleto(),
+                        e.getPuntos2024(),
+                        ""));
+        
+        System.out.println("╚════════════════════════════════════════════════════════════╝");
     }
 
     // NUEVO METODO para listar circuitos con ID
     private static void listarCircuitos(List<Circuito> circuitos) {
-        System.out.println("\n=== LISTA DE CIRCUITOS 2024 ===");
+        System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+        System.out.println("║ 📋 LISTADO DE CIRCUITOS 2024                               ║");
+        System.out.println("╠════════════════════════════════════════════════════════════╣");
+        System.out.println("║ ID │ Circuito                    │ País                   ║");
+        System.out.println("╟────┼─────────────────────────────┼────────────────────────╢");
+        
         circuitos.stream()
-                .sorted(Comparator.comparing(Circuito::getId)) // Ordenar por ID (que coincide con orden de carrera)
-                .forEach(c -> System.out.printf("ID: %-2d | Nombre: %-35s | País: %-20s | Fecha GP: %s\n",
+                .sorted(Comparator.comparing(Circuito::getNombre))
+                .forEach(c -> System.out.printf("║ %2d │ %-28s │ %-22s ║\n",
                         c.getId(),
                         c.getNombre(),
-                        c.getPais(),
-                        c.getFechaCarreraPrincipal().format(DATE_FORMATTER)));
+                        c.getPais()));
+        
+        System.out.println("╚════════════════════════════════════════════════════════════╝");
     }
 }
