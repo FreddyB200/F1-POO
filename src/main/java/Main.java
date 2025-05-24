@@ -417,9 +417,9 @@ public class Main {
             System.out.println("╟────────────────────────────────────────────────────────────╢");
             System.out.println("║ 📏 CARACTERÍSTICAS                                        ║");
             System.out.println("╟────────────────────────────────────────────────────────────╢");
-            System.out.printf("║ Longitud: %-46.3f km ║\n", circuitoEncontrado.getLongitud());
+            System.out.printf("║ Longitud: %-46.0f m ║\n", circuitoEncontrado.getLongitud());
             System.out.printf("║ Vueltas: %-48d ║\n", circuitoEncontrado.getVueltas());
-            System.out.printf("║ Distancia Total: %-40.3f km ║\n", 
+            System.out.printf("║ Distancia Total: %-40.0f m ║\n", 
                 circuitoEncontrado.getLongitud() * circuitoEncontrado.getVueltas());
             System.out.println("╚════════════════════════════════════════════════════════════╝");
         } else {
