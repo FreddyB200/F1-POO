@@ -43,7 +43,7 @@ public class CargadorDatos {
                 new Circuito(4, "Suzuka International Racing Course", "Japón", "Suzuka", 5.807, 53, parse("2024-04-07"), null),
                 new Circuito(5, "Shanghai International Circuit", "China", "Shanghái", 5.451, 56, parse("2024-04-21"), parse("2024-04-20")),
                 new Circuito(6, "Miami International Autodrome", "Estados Unidos", "Miami", 5.412, 57, parse("2024-05-05"), parse("2024-05-04")),
-                new Circuito(7, "Imola Circuit", "Italia", "Imola", 4.909, 63, parse("2024-05-19"), null), // Emilia Romagna
+                new Circuito(7, "Autodromo Internazionale Enzo e Dino Ferrari", "Italia", "Imola", 4.909, 63, parse("2024-05-19"), null), // Emilia Romagna
                 new Circuito(8, "Circuit de Monaco", "Mónaco", "Monte Carlo", 3.337, 78, parse("2024-05-26"), null),
                 new Circuito(9, "Circuit Gilles Villeneuve", "Canadá", "Montreal", 4.361, 70, parse("2024-06-09"), null),
                 new Circuito(10, "Circuit de Barcelona-Catalunya", "España", "Montmeló", 4.657, 66, parse("2024-06-23"), null),
@@ -52,12 +52,12 @@ public class CargadorDatos {
                 new Circuito(13, "Hungaroring", "Hungría", "Budapest", 4.381, 70, parse("2024-07-21"), null),
                 new Circuito(14, "Circuit de Spa-Francorchamps", "Bélgica", "Stavelot", 7.004, 44, parse("2024-07-28"), null),
                 new Circuito(15, "Circuit Zandvoort", "Países Bajos", "Zandvoort", 4.259, 72, parse("2024-08-25"), null),
-                new Circuito(16, "Monza Circuit", "Italia", "Monza", 5.793, 53, parse("2024-09-01"), null), // Italia
+                new Circuito(16, "Autodromo Nazionale Monza", "Italia", "Monza", 5.793, 53, parse("2024-09-01"), null), // Italia
                 new Circuito(17, "Baku City Circuit", "Azerbaiyán", "Bakú", 6.003, 51, parse("2024-09-15"), null),
                 new Circuito(18, "Marina Bay Street Circuit", "Singapur", "Singapur", 5.063, 62, parse("2024-09-22"), null),
                 new Circuito(19, "Circuit of the Americas", "Estados Unidos", "Austin", 5.513, 56, parse("2024-10-20"), parse("2024-10-19")), // USA
                 new Circuito(20, "Autódromo Hermanos Rodríguez", "México", "Ciudad de México", 4.304, 71, parse("2024-10-27"), null),
-                new Circuito(21, "Interlagos Circuit", "Brasil", "São Paulo", 4.309, 71, parse("2024-11-03"), parse("2024-11-02")), // São Paulo
+                new Circuito(21, "Autódromo José Carlos Pace", "Brasil", "São Paulo", 4.309, 71, parse("2024-11-03"), parse("2024-11-02")), // São Paulo
                 new Circuito(22, "Las Vegas Strip Circuit", "Estados Unidos", "Las Vegas", 6.201, 50, parse("2024-11-23"), null), // Las Vegas
                 new Circuito(23, "Lusail International Circuit", "Qatar", "Lusail", 5.419, 57, parse("2024-12-01"), parse("2024-11-30")),
                 new Circuito(24, "Yas Marina Circuit", "Emiratos Árabes Unidos", "Abu Dhabi", 5.281, 58, parse("2024-12-08"), null) // Abu Dhabi
@@ -99,7 +99,8 @@ public class CargadorDatos {
                 new Piloto(17, "Valtteri Bottas", 0, 0.0, equiposPorNombre.get("Stake F1 Team Kick Sauber"), 77, "BOT", 246, 10, 67, 20, 19, Map.of(), "Finlandés", 35, new TemporadaActual(20, 24, 0, "Abu Dhabi GP", parse("2024-12-08"))),
                 new Piloto(14, "Logan Sargeant", 0, 0.0, equiposPorNombre.get("Williams Racing"), 2, "SAR", 36, 0, 0, 0, 0, Map.of(), "Estadounidense", 24, new TemporadaActual(21, 15, 0, "Italian GP", parse("2024-09-01"))), // Corrió 15 GPs
                 new Piloto(18, "Guanyu Zhou", 0, 0.0, equiposPorNombre.get("Stake F1 Team Kick Sauber"), 24, "ZHO", 68, 0, 0, 0, 2, Map.of(), "Chino", 25, new TemporadaActual(22, 24, 0, "Abu Dhabi GP", parse("2024-12-08"))),
-                new Piloto(23, "Jack Doohan", 0, 0.0, equiposPorNombre.get("BWT Alpine F1 Team"), 61, "DOO", 1, 0, 0, 0, 0, Map.of(), "Australiano", 22, new TemporadaActual(24, 1, 0, "Abu Dhabi GP", parse("2024-12-08"))) // Corrió 1 GP
+                new Piloto(23, "Jack Doohan", 0, 0.0, equiposPorNombre.get("BWT Alpine F1 Team"), 61, "DOO", 1, 0, 0, 0, 0, Map.of(), "Australiano", 22, new TemporadaActual(24, 1, 0, "Abu Dhabi GP", parse("2024-12-08"))), // Corrió 1 GP
+                new Piloto(24, "Liam Lawson", 0, 0.0, equiposPorNombre.get("Visa Cash App RB F1 Team"), 58, "LAW", 1, 0, 0, 0, 0, Map.of(), "Neozelandés", 22, new TemporadaActual(24, 1, 0, "Abu Dhabi GP", parse("2024-12-08"))) //
         );
 
         // *** VINCULACIÓN PILOTO <-> EQUIPO ***

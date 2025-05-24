@@ -63,16 +63,17 @@ public class Main {
 
         String menuCompleto = """
                 ╔════════════════════════════════════════════════════════════╗
-                ║                  GESTIÓN F1 - TEMPORADA 2024                ║
+                ║                  GESTIÓN F1 - TEMPORADA 2024               ║
                 ╠════════════════════════════════════════════════════════════╣
                 ║                                                            ║
-                ║  👥 LISTADOS                                              ║
+                ║  👥 LISTADOS                                               ║
                 ║    1. Listar Equipos                                       ║
                 ║    2. Listar Pilotos                                       ║
                 ║    3. Listar Circuitos                                     ║
                 ║                                                            ║
                 ║  📊 INFORMACIÓN DETALLADA                                  ║
-                ║  ───────────────────────────────────────────────────────────║
+                ║  ──────────────────────────────────────────────────────────3
+                ║
                 ║    4. Ver Información Detallada de Equipo                   ║
                 ║    5. Ver Información Detallada de Piloto                   ║
                 ║    6. Ver Información Detallada de Circuito                 ║
@@ -411,6 +412,8 @@ public class Main {
             System.out.printf("║ ID: %-52d ║\n", circuitoEncontrado.getId());
             System.out.printf("║ País: %-50s ║\n", circuitoEncontrado.getPais());
             System.out.printf("║ Ciudad: %-48s ║\n", circuitoEncontrado.getCiudad());
+            System.out.printf("║ Fecha carrera: %-41s ║\n",
+                    circuitoEncontrado.getFechaCarreraPrincipal().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
             System.out.println("╟────────────────────────────────────────────────────────────╢");
             System.out.println("║ 📏 CARACTERÍSTICAS                                        ║");
             System.out.println("╟────────────────────────────────────────────────────────────╢");
