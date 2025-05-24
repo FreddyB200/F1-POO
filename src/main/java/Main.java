@@ -417,9 +417,9 @@ public class Main {
             System.out.println("╟────────────────────────────────────────────────────────────╢");
             System.out.println("║ 📏 CARACTERÍSTICAS                                        ║");
             System.out.println("╟────────────────────────────────────────────────────────────╢");
-            System.out.printf("║ Longitud: %-46.0f m ║\n", circuitoEncontrado.getLongitud());
+            System.out.printf("║ Longitud: %-40.0f metros ║\n", circuitoEncontrado.getLongitud());
             System.out.printf("║ Vueltas: %-48d ║\n", circuitoEncontrado.getVueltas());
-            System.out.printf("║ Distancia Total: %-40.0f m ║\n", 
+            System.out.printf("║ Distancia Total: %-34.0f metros ║\n", 
                 circuitoEncontrado.getLongitud() * circuitoEncontrado.getVueltas());
             System.out.println("╚════════════════════════════════════════════════════════════╝");
         } else {
@@ -505,22 +505,67 @@ public class Main {
             return;
         }
 
-        System.out.println("\n=== COMPARACIÓN DE EQUIPOS ===");
-        for (int i = 0; i < equipos.size(); i++) {
-            System.out.println((i + 1) + ". " + equipos.get(i).getNombreCompleto());
+        while (true) {
+            System.out.println("\n=== COMPARACIÓN DE EQUIPOS ===");
+            System.out.println("1. Comparar posiciones y puntos");
+            System.out.println("2. Comparación visual");
+            System.out.println("3. Salir");
+            System.out.print("\nSeleccione una opción: ");
+            
+            int opcion = scanner.nextInt();
+            scanner.nextLine(); // Limpiar buffer
+            
+            if (opcion == 3) return;
+            
+            if (opcion != 1 && opcion != 2) {
+                System.out.println("Opción inválida. Intente de nuevo.");
+                continue;
+            }
+
+            System.out.println("\nSeleccione los equipos a comparar:");
+            for (int i = 0; i < equipos.size(); i++) {
+                System.out.println((i + 1) + ". " + equipos.get(i).getNombreCompleto());
+            }
+
+            System.out.print("\nSeleccione el primer equipo (número): ");
+            int equipo1 = scanner.nextInt() - 1;
+            System.out.print("Seleccione el segundo equipo (número): ");
+            int equipo2 = scanner.nextInt() - 1;
+            scanner.nextLine(); // Limpiar buffer
+
+            if (equipo1 < 0 || equipo1 >= equipos.size() || equipo2 < 0 || equipo2 >= equipos.size()) {
+                System.out.println("Selección inválida.");
+                continue;
+            }
+
+            if (opcion == 1) {
+                mostrarComparacionSimpleEquipos(equipos.get(equipo1), equipos.get(equipo2));
+            } else {
+                VisualizadorComparacion.mostrarComparacionEquipos(equipos.get(equipo1), equipos.get(equipo2));
+            }
         }
+    }
 
-        System.out.print("\nSeleccione el primer equipo (número): ");
-        int equipo1 = scanner.nextInt() - 1;
-        System.out.print("Seleccione el segundo equipo (número): ");
-        int equipo2 = scanner.nextInt() - 1;
+    private static void mostrarComparacionSimpleEquipos(Equipo equipo1, Equipo equipo2) {
+        System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+        System.out.println("║ 📊 COMPARACIÓN DE EQUIPOS                                  ║");
+        System.out.println("╠════════════════════════════════════════════════════════════╣");
+        
+        double diferenciaPuntos = equipo1.getPuntos2024() - equipo2.getPuntos2024();
+        String mensajePuntos = diferenciaPuntos > 0 ? 
+            String.format("%s tiene %.1f puntos más que %s", 
+                equipo1.getNombreCompleto(), diferenciaPuntos, equipo2.getNombreCompleto()) :
+            String.format("%s tiene %.1f puntos más que %s", 
+                equipo2.getNombreCompleto(), -diferenciaPuntos, equipo1.getNombreCompleto());
 
-        if (equipo1 < 0 || equipo1 >= equipos.size() || equipo2 < 0 || equipo2 >= equipos.size()) {
-            System.out.println("Selección inválida.");
-            return;
-        }
-
-        VisualizadorComparacion.mostrarComparacionEquipos(equipos.get(equipo1), equipos.get(equipo2));
+        System.out.printf("║ %-54s ║\n", mensajePuntos);
+        
+        System.out.println("╟────────────────────────────────────────────────────────────╢");
+        System.out.printf("║ %-30s │ %-20s ║\n", "EQUIPO", "PUNTOS 2024");
+        System.out.println("╟────────────────────────────────────────────────────────────╢");
+        System.out.printf("║ %-30s │ %-20.1f ║\n", equipo1.getNombreCompleto(), equipo1.getPuntos2024());
+        System.out.printf("║ %-30s │ %-20.1f ║\n", equipo2.getNombreCompleto(), equipo2.getPuntos2024());
+        System.out.println("╚════════════════════════════════════════════════════════════╝");
     }
 
     // Método para encontrar un piloto por ID, nombre o abreviatura
@@ -546,21 +591,66 @@ public class Main {
             return;
         }
 
-        System.out.println("\n=== COMPARACIÓN DE PILOTOS ===");
-        for (int i = 0; i < pilotos.size(); i++) {
-            System.out.println((i + 1) + ". " + pilotos.get(i).getNombreCompleto());
+        while (true) {
+            System.out.println("\n=== COMPARACIÓN DE PILOTOS ===");
+            System.out.println("1. Comparar posiciones y puntos");
+            System.out.println("2. Comparación visual");
+            System.out.println("3. Salir");
+            System.out.print("\nSeleccione una opción: ");
+            
+            int opcion = scanner.nextInt();
+            scanner.nextLine(); // Limpiar buffer
+            
+            if (opcion == 3) return;
+            
+            if (opcion != 1 && opcion != 2) {
+                System.out.println("Opción inválida. Intente de nuevo.");
+                continue;
+            }
+
+            System.out.println("\nSeleccione los pilotos a comparar:");
+            for (int i = 0; i < pilotos.size(); i++) {
+                System.out.println((i + 1) + ". " + pilotos.get(i).getNombreCompleto());
+            }
+
+            System.out.print("\nSeleccione el primer piloto (número): ");
+            int piloto1 = scanner.nextInt() - 1;
+            System.out.print("Seleccione el segundo piloto (número): ");
+            int piloto2 = scanner.nextInt() - 1;
+            scanner.nextLine(); // Limpiar buffer
+
+            if (piloto1 < 0 || piloto1 >= pilotos.size() || piloto2 < 0 || piloto2 >= pilotos.size()) {
+                System.out.println("Selección inválida.");
+                continue;
+            }
+
+            if (opcion == 1) {
+                mostrarComparacionSimplePilotos(pilotos.get(piloto1), pilotos.get(piloto2));
+            } else {
+                VisualizadorComparacion.mostrarComparacionPilotos(pilotos.get(piloto1), pilotos.get(piloto2));
+            }
         }
+    }
 
-        System.out.print("\nSeleccione el primer piloto (número): ");
-        int piloto1 = scanner.nextInt() - 1;
-        System.out.print("Seleccione el segundo piloto (número): ");
-        int piloto2 = scanner.nextInt() - 1;
+    private static void mostrarComparacionSimplePilotos(Piloto piloto1, Piloto piloto2) {
+        System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+        System.out.println("║ 📊 COMPARACIÓN DE PILOTOS                                  ║");
+        System.out.println("╠════════════════════════════════════════════════════════════╣");
+        
+        double diferenciaPuntos = piloto1.getPuntos2024() - piloto2.getPuntos2024();
+        String mensajePuntos = diferenciaPuntos > 0 ? 
+            String.format("%s tiene %.1f puntos más que %s", 
+                piloto1.getNombreCompleto(), diferenciaPuntos, piloto2.getNombreCompleto()) :
+            String.format("%s tiene %.1f puntos más que %s", 
+                piloto2.getNombreCompleto(), -diferenciaPuntos, piloto1.getNombreCompleto());
 
-        if (piloto1 < 0 || piloto1 >= pilotos.size() || piloto2 < 0 || piloto2 >= pilotos.size()) {
-            System.out.println("Selección inválida.");
-            return;
-        }
-
-        VisualizadorComparacion.mostrarComparacionPilotos(pilotos.get(piloto1), pilotos.get(piloto2));
+        System.out.printf("║ %-54s ║\n", mensajePuntos);
+        
+        System.out.println("╟────────────────────────────────────────────────────────────╢");
+        System.out.printf("║ %-30s │ %-20s ║\n", "PILOTO", "PUNTOS 2024");
+        System.out.println("╟────────────────────────────────────────────────────────────╢");
+        System.out.printf("║ %-30s │ %-20.1f ║\n", piloto1.getNombreCompleto(), piloto1.getPuntos2024());
+        System.out.printf("║ %-30s │ %-20.1f ║\n", piloto2.getNombreCompleto(), piloto2.getPuntos2024());
+        System.out.println("╚════════════════════════════════════════════════════════════╝");
     }
 }
